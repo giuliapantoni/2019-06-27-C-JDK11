@@ -7,6 +7,7 @@ package it.polito.tdp.crimes;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Adiacenza;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,10 +26,10 @@ public class CrimesController {
     private URL location;
 
     @FXML // fx:id="boxCategoria"
-    private ComboBox<?> boxCategoria; // Value injected by FXMLLoader
+    private ComboBox<String> boxCategoria; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGiorno"
-    private ComboBox<?> boxGiorno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxGiorno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalisi"
     private Button btnAnalisi; // Value injected by FXMLLoader
@@ -45,7 +46,22 @@ public class CrimesController {
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Crea grafo...\n");
+    	String categoria = this.boxCategoria.getValue();
+    	if(categoria == null) {
+    		txtResult.appendText("Errore, devi prima selezionare una categoria!\n");
+    		return;
+    	}
+    	Integer giorno = this.boxGiorno.getValue();
+    	if(giorno == null) {
+    		txtResult.appendText("Errore, devi prima selezionare un giorno!\n");
+    		return;
+    	}
+    	this.model.creaGrafo(categoria, giorno);
+    	txtResult.appendText(String.format("Creato grafo con %d vertici e %d archi!\n", this.model.numVertici(), this.model.numArchi()));
+    	txtResult.appendText("\nElenco reati con peso: \n");
+    	for(Adiacenza a : this.model.getResult()) {
+    		txtResult.appendText(a.getS1() + " - " + a.getS2() + " ( " + a.getPeso() + " ) \n");
+    	}
     }
 
     @FXML
@@ -67,5 +83,7 @@ public class CrimesController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxCategoria.getItems().addAll(this.model.getCategorie());
+    	this.boxGiorno.getItems().addAll(this.model.getGiorni());
     }
 }
